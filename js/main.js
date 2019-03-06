@@ -1,5 +1,6 @@
 var canvas = document.getElementById("canvas")
 var ctx = canvas.getContext("2d")
+
 ctx.font = '20px Arial';
 var interval ;
 var timeGameStarted = Date.now()
@@ -7,8 +8,9 @@ var frameCount = 0;
 var score = 0;
 
 
-document.onmousemove = function(e){
-    var mouseX = e.clientX - canvas.getBoundingClientRect().left;
+
+document.onmousemove = function(e){ 
+   var mouseX = e.clientX - canvas.getBoundingClientRect().left;
     var mouseY = e.clientY - canvas.getBoundingClientRect().top;
 
     if(mouseX < player.width/2){
@@ -26,18 +28,31 @@ document.onmousemove = function(e){
     
     player.x = mouseX;
     player.y = mouseY;
+    
 }
 
-
+//var background = new Background()
 var player = new Player(x=canvas.width/2,y=canvas.height/2)
 var enemies = createEnemies(2)
 
 list_Bullets = []
 list_Items = []
 
+
+
+document.onclick = function(){
+    if(player.counterAttack > 25){
+	list_Bullets.push(createBullet(player));
+	player.counterAttack = 0;
+    }
+}
+
 update = function(){
     frameCount++;
     
+    player.counterAttack += player.attackSpeed  
+
+    //background.draw()
 
     ctx.clearRect(0,0,canvas.width,canvas.height)
     player.draw()
@@ -49,11 +64,14 @@ update = function(){
     if(frameCount % 50 === 0){
 	list_Items.push(createItem())
     }
+
+/* 
     if(frameCount % 25 === 0){
 	bullet = createBullet(player)
 	list_Bullets.push(bullet)
 	
     }
+*/
 
     
     
@@ -80,7 +98,6 @@ update = function(){
     for(let i= 0; i <list_Items.length ; i++){
 	updateEntity(list_Items[i]);
 	list_Items[i].draw();
-	// var isCollision = collisionCircle(list_Items[i],player,10)
 	
 	if(player.collisionRect(list_Items[i])){
 	    player.health *= 2;
@@ -128,22 +145,59 @@ start = function(){
 restart = function(){
     player.health = 10;
     frameCount = 0;
-    enemies = createEnemies(3)
-    
+    enemies = createEnemies(3)   
 }
 
 
 
-
-
-addEventListener("keydown", function(e){
-    if(e.keyCode === 27){
+document.keydown =  function(e){
+    if(e.keyCode === 37){
 	console.log(e.keyCode)
-	restart();
+	player.pressLeft = true
     }
-})
+    if(e.keyCode === 38){	
+	player.pressUp = true
+    }
+    if(e.keyCode === 39){	
+	player.pressRight = true
+    }
+    if(e.keyCode === 40){	
+	player.pressDown = true
+    }
+}
 
 
+document.keyup =  function(e){
+    if(e.keyCode === 37){	
+	player.pressLeft = false
+    }
+    if(e.keyCode === 38){	
+	player.pressUp = false
+    }
+    if(e.keyCode === 39){	
+	player.pressRight = false
+    }
+    if(e.keyCode === 40){	
+	player.pressDown = false
+    }
+}
+
+updatePlayerPosition = function(player){
+    if(player.pressLeft){
+	player.x -= 10
+    }
+    if(player.pressRight){
+	player.x += 10
+    }
+    if(player.pressUp){
+	player.y += 10
+    }
+    if(player.pressDown){
+	player.y -= 10
+    }
+}
+
+updatePlayerPosition(player)
 start();
 
 

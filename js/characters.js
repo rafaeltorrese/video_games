@@ -9,6 +9,14 @@ class Player{
 	this.name = name;
 	this.health = 10;
 	this.color = color
+	this.counterAttack = 0;
+	this.attackSpeed = 1;
+	this.pressDown = false;
+	this.pressUp = false;
+	this.pressLeft = false;
+	this.pressRight = false;
+	
+	//this.aimAngle = 0;
     }
 
 
@@ -37,11 +45,35 @@ class Enemy extends Player{
 
 class Item extends Player{
     
+    
+   
 }
 
 class Bullet extends Player{
     constructor(x,y,height,width,dx,dy,color,timer){
 	super(x,y,height, width,dx,dy,color)
-	this.timer = timer
+	this.timer = timer;
+	this.image = new Image();
+	this.image.src = '../images/bullet_01.jpeg';
+	
+    }
+    draw(){
+	ctx.drawImage(this.image,this.x,this.y,)
+    }
+
+    
+}
+
+class Background{
+    constructor(){
+	this.x = 0;
+	this.y = 0;
+	this.width = canvas.width;
+	this.height = canvas.height;
+	this.image = new Image();
+	this.image.src = '../images/bg_01.png'
+    }
+    draw(){
+	ctx.drawImage(this.image,this.x,this.y,this.width,this.height)
     }
 }

@@ -31,6 +31,7 @@ createBullet = function(player){
     let time = Date.now()
     let x = player.x
     let y = player.y
+    
     let degrees = Math.random()*360 ;
     let dirx = Math.cos(degrees/180*Math.PI)*5 ;
     let diry = Math.sin(degrees/180*Math.PI)*5
