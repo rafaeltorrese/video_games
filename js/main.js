@@ -9,13 +9,22 @@ var score = 0;
 
 
 
-document.onmousemove = function(e){ 
-   var mouseX = e.clientX - canvas.getBoundingClientRect().left;
+document.onmousemove = function(e){
+    var mouseX = e.clientX - canvas.getBoundingClientRect().left;
+    var mouseY = e.clientY - canvas.getBoundingClientRect().top;
+    mouseX -= player.x
+    mouseY -= player.y
+    player.aimAngle = Math.atan2(mouseY, mouseX) / Math.PI * 180;
+/*
+    var mouseX = e.clientX - canvas.getBoundingClientRect().left;
     var mouseY = e.clientY - canvas.getBoundingClientRect().top;
 
+   
+    
     if(mouseX < player.width/2){
 	mouseX = player.width/2
     }
+    
     if(mouseX > canvas.width - player.width/2){
 	mouseX = canvas.width - player.width/2
     }
@@ -28,6 +37,7 @@ document.onmousemove = function(e){
     
     player.x = mouseX;
     player.y = mouseY;
+*/
     
 }
 
@@ -47,6 +57,17 @@ document.onclick = function(){
     }
 }
 
+document.oncontextmenu = function(mouse){
+    if(player.counterAttack > 50){
+	list_Bullets.push(createBullet(player,player.aimAngle - 5));
+	list_Bullets.push(createBullet(player));
+	list_Bullets.push(createBullet(player,player.aimAngle + 5));
+	player.counterAttack = 0;
+    }
+    mouse.preventDefault();
+}
+
+
 update = function(){
     frameCount++;
     
@@ -55,6 +76,7 @@ update = function(){
     //background.draw()
 
     ctx.clearRect(0,0,canvas.width,canvas.height)
+    updatePlayerPosition(player);
     player.draw()
 
     if(frameCount % 100 === 0){
@@ -65,13 +87,9 @@ update = function(){
 	list_Items.push(createItem())
     }
 
-/* 
-    if(frameCount % 25 === 0){
-	bullet = createBullet(player)
-	list_Bullets.push(bullet)
-	
-    }
-*/
+ 
+
+
 
     
     
@@ -90,7 +108,7 @@ update = function(){
 	
     }	 
     for(let i=0; i<list_Bullets.length ; i++){
-	if(Date.now() - list_Bullets[i].timer  === 10000){
+	if(Date.now() - list_Bullets[i].timer  === 1000){
 	    list_Bullets.splice(i,1)
 	}
     }
@@ -99,10 +117,12 @@ update = function(){
 	updateEntity(list_Items[i]);
 	list_Items[i].draw();
 	
-	if(player.collisionRect(list_Items[i])){
-	    player.health *= 2;
+	if(list_Items[i].collisionRect(player))	{
+	    if(list_Items[i].category == 'health') player.health++;
+	    else player.attackSpeed++;
 	    list_Items.splice(i,1)
 	}
+	
     }
     
     
@@ -116,9 +136,7 @@ update = function(){
 
     }
 
-    
-    
-    
+     
     ctx.fillStyle = 'black';
     ctx.fillText(player.health + "Health" , 0 ,30);
     ctx.fillText(`Score: ${score}` , 200 ,30);
@@ -150,50 +168,68 @@ restart = function(){
 
 
 
-document.keydown =  function(e){
-    if(e.keyCode === 37){
-	console.log(e.keyCode)
-	player.pressLeft = true
+document.onkeydown =  function(e){
+    switch(e.keyCode){
+    case 37:
+	player.pressLeft = true;
+	break;
+    case 38:
+	player.pressUp = true;
+	break;
+    case 39:
+	player.pressRight = true;
+	break;
+    case 40:
+	player.pressDown = true;
+	break;
     }
-    if(e.keyCode === 38){	
-	player.pressUp = true
+}    
+
+document.onkeyup =  function(e){
+    switch(e.keyCode){
+    case 37:
+	player.pressLeft = false;
+	break;
+    case 38:
+	player.pressUp = false;
+	break;
+    case 39:
+	player.pressRight = false;
+	break;
+    case 40:
+	player.pressDown = false;
+	break;
     }
-    if(e.keyCode === 39){	
-	player.pressRight = true
-    }
-    if(e.keyCode === 40){	
-	player.pressDown = true
-    }
-}
+}   
 
 
-document.keyup =  function(e){
-    if(e.keyCode === 37){	
-	player.pressLeft = false
-    }
-    if(e.keyCode === 38){	
-	player.pressUp = false
-    }
-    if(e.keyCode === 39){	
-	player.pressRight = false
-    }
-    if(e.keyCode === 40){	
-	player.pressDown = false
-    }
-}
 
 updatePlayerPosition = function(player){
     if(player.pressLeft){
 	player.x -= 10
+	
     }
     if(player.pressRight){
 	player.x += 10
     }
     if(player.pressUp){
-	player.y += 10
+	player.y -= 10
     }
     if(player.pressDown){
-	player.y -= 10
+	player.y += 10
+    }
+    
+    if(player.x < player.width/2){
+	player.x = player.width/2
+    }
+    if(player.x > canvas.width - player.width/2){
+	player.x = canvas.width - player.width/2
+    }
+    if(player.y < player.height/2){
+	player.y = player.height/2
+    }
+    if(player.y > canvas.height - player.height/2){
+	player.y = canvas.height - player.height/2
     }
 }
 

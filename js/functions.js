@@ -14,44 +14,47 @@ createItem = function(){
     let y = Math.random()*canvas.height
     let dx = 0;
     let dy = 0;
-    let height = 20;
-    let width = 20;
-    color = 'purple'
+    let height = 8;
+    let width = 8;
+    let category = 'attack'
+    let color = 'purple'
     if (Math.random() < 0.5){
-	color = 'yellow'
+	height = 15;
+	width = 15;
+	category = 'health';
+	color = 'yellow';
     }
     
-    return new Item(x,y , height,width,dx,dy, color=color)
+    return new Item(x,y , height,width,dx,dy, color,category)
 }
 
 
-createBullet = function(player){
-    // rad = 180 / Pi
+createBullet = function(player,overWriteAngle){
+    // rad = 180 / PI
     // degrees = radians x 180 / PI
-    let time = Date.now()
-    let x = player.x
-    let y = player.y
+    let time = Date.now();
+    let x = player.x;
+    let y = player.y;
+    let height = 15;
+    let width = 15;
+    let color = 'black';
+    let degrees = player.aimAngle;
+    if(overWriteAngle !== undefined){
+	degrees = overWriteAngle;
+    }
+    let speed_x = Math.cos(degrees/180*Math.PI)*5 ;
+    let speed_y = Math.sin(degrees/180*Math.PI)*5;
     
-    let degrees = Math.random()*360 ;
-    let dirx = Math.cos(degrees/180*Math.PI)*5 ;
-    let diry = Math.sin(degrees/180*Math.PI)*5
-    
-    return new Bullet(x, y, height=20, width=20,dx=dirx,dy=diry,color='black',time)
+    return new Bullet(x, y, height, width,speed_x,speed_y,color,time)
 }
 
-createListBullets = function(n,player){
-    bullets = []
-    for(let i = 0; i<n; i++){
-	bullets[i] = createBullet(player)
-    }
-    return bullets;	
-}
+
 
 collisionRect = function(item){
-            return  (this.x < item.x + item.width) &&
-                (this.x + this.width > item.x) &&
-                (this.y < item.y + item.height) &&
-                (this.y + this.height > item.y);
+    return  (this.x < item.x + item.width) &&
+        (this.x + this.width > item.x) &&
+        (this.y < item.y + item.height) &&
+        (this.y + this.height > item.y);
 }
 
 

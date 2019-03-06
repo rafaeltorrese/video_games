@@ -15,8 +15,8 @@ class Player{
 	this.pressUp = false;
 	this.pressLeft = false;
 	this.pressRight = false;
-	
-	//this.aimAngle = 0;
+	this.image = new Image();
+	this.aimAngle = 0;
     }
 
 
@@ -44,24 +44,41 @@ class Enemy extends Player{
 
 
 class Item extends Player{
+    constructor(x,y,height,width,dx,dy,color,category){
+	super(x,y,height,width,dx,dy,color)
+	this.category = category
+    } 
     
     
    
 }
 
-class Bullet extends Player{
-    constructor(x,y,height,width,dx,dy,color,timer){
-	super(x,y,height, width,dx,dy,color)
+class Bullet{
+    constructor(x,y,height,width,speed_x,speed_y,color,timer){
+	this.x = x;
+	this.y = y;
+	this.height = height;
+	this.width = width;
+	this.dx = speed_x
+	this.dy = speed_y
+	this.color = color
+	//super(x,y,height, width,dx,dy,color)
 	this.timer = timer;
-	this.image = new Image();
-	this.image.src = '../images/bullet_01.jpeg';
-	
+//	this.image = new Image();
+//	this.image.src = '../images/bullet_01.jpeg';	
     }
+    
     draw(){
-	ctx.drawImage(this.image,this.x,this.y,)
+	ctx.fillStyle = this.color
+	ctx.fillRect(this.x-(this.width/2) ,this.y-(this.height/2),this.width,this.height);
     }
 
-    
+    collisionRect(item){
+        return  (this.x < item.x + item.width) &&
+                (this.x + this.width > item.x) &&
+                (this.y < item.y + item.height) &&
+                (this.y + this.height > item.y);
+    }
 }
 
 class Background{
