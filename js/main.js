@@ -1,11 +1,6 @@
-var canvas = document.getElementById("canvas")
-var ctx = canvas.getContext("2d")
 
-ctx.font = '20px Arial';
-var interval ;
-var timeGameStarted = Date.now()
-var frameCount = 0;
-var score = 0;
+
+
 
 
 
@@ -41,9 +36,11 @@ document.onmousemove = function(e){
     
 }
 
-//var background = new Background()
-var player = new Player(x=canvas.width/2,y=canvas.height/2)
-var enemies = createEnemies(2)
+
+var player = new Entity(x=canvas.width/2,y=canvas.height/2)
+var enemies = [createEnemy(),createEnemy()]
+var bg = new Background(player)
+
 
 list_Bullets = []
 list_Items = []
@@ -68,14 +65,21 @@ document.oncontextmenu = function(mouse){
 }
 
 
+
+
+
+
+
 update = function(){
+    ctx.clearRect(0,0,canvas.width,canvas.height)
+    bg.draw()
     frameCount++;
-    
+
     player.counterAttack += player.attackSpeed  
 
-    //background.draw()
+    
 
-    ctx.clearRect(0,0,canvas.width,canvas.height)
+    
     updatePlayerPosition(player);
     player.draw()
 
@@ -163,7 +167,7 @@ start = function(){
 restart = function(){
     player.health = 10;
     frameCount = 0;
-    enemies = createEnemies(3)   
+    enemies = [createEnemy(),createEnemy(),createEnemy()]
 }
 
 

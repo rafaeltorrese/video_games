@@ -2,8 +2,8 @@ createEnemy = function(){
     let epsilon = 5
     let x = Math.random()*canvas.width;
     let y = Math.random()*canvas.height;
-    let height = epsilon  + Math.random()*20
-    let width = epsilon + Math.random()*20
+    let height = 30
+    let width = 30
     let dx = epsilon + Math.random()*5;
     let dy = epsilon + Math.random()*5;
     return new Enemy(x,y,height,width,dx,dy,'blue');
@@ -14,8 +14,8 @@ createItem = function(){
     let y = Math.random()*canvas.height
     let dx = 0;
     let dy = 0;
-    let height = 8;
-    let width = 8;
+    let height = 20;
+    let width = 20;
     let category = 'attack'
     let color = 'purple'
     if (Math.random() < 0.5){
@@ -80,21 +80,4 @@ collisionCircle = function(ent1,ent2,d){
 }
 
 
-createEnemies = function(n){
-    // n: number of enemies
-    var enemies = []
-    var epsilon = 5    
-    for(let i=0; i<n; i++){
-	//enemies[i] = createEnemy()
-	let epsilon = 5
-	let x = Math.random();
-	let y = Math.random();
-	let height = epsilon  + Math.random()*20
-	let width = epsilon + Math.random()*20
-	let dx = epsilon + Math.random()*5;
-	let dy = epsilon + Math.random()*5;
-	let id = Math.random()
-	enemies[i] = new Enemy(x,y,height,width,dx,dy,'blue','E'+(i+1));
-    }
-    return enemies;
-}
+
