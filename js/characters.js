@@ -8,33 +8,45 @@ var frameCount = 0;
 var score = 0;
 
 class Entity{
-    constructor(x,y,height=30,width=30,dx=20,dy=20,color='green',name='P'){
-
+    constructor(x,y,height,width,dx,dy){
 	this.x = x ;
 	this.y = y ;
 	this.height = height;
 	this.width = width;
 	this.dx = dx;
 	this.dy = dy;
-	this.name = name;
 	this.health = 10;
-	this.color = color
+	//	this.color = color
+	this.spriteVelocity  = 0;
 	this.counterAttack = 0;
 	this.attackSpeed = 1;
 	this.pressDown = false;
 	this.pressUp = false;
 	this.pressLeft = false;
 	this.pressRight = false;
+	this.pressShift = false;
 	this.image = new Image();
-	this.image.src = "../video_games/images/pony.png"
-	this.aimAngle = 0;
+	this.image.src = "../video_games/images/pony_1.png"
+	this.aimAngle = Math.atan2(this.y,this.x) / Math.PI*180
     }
 
 
+    update(){
+	this.x+= this.dx;
+	this.y += this.dy;
 
+	//this.draw()
+	
+	if(this.x > canvas.width || this.x < 0){
+	    this.dx *= -1;
+	}
+	if(this.y > canvas.height || this.y < 0){
+	    this.dy *= -1; // change direction
+	}
+    }
     draw(){
-	//let x = this.x-(this.width/2)
-	//let y = this.y-(this.height/2)
+	/*let x = this.x-(this.width/2)
+	let y = this.y-(this.height/2)*/
 
 	let x = this.x - player.x
 	let y = this.y - player.y
@@ -45,7 +57,23 @@ class Entity{
 	x -= this.width/2
 	y -= this.height/2
 	
-	ctx.drawImage(this.image,x,y,this.width,this.height)
+	let width_img = this.image.width/3;
+	let height_img = this.image.height/4;
+
+	
+	let direction = 0;
+
+	
+	if(this.pressDown) direction = 0;
+	if(this.pressLeft) direction = 1;
+	if(this.pressRight) direction = 2;
+	if(this.pressUp) direction = 3;
+
+	if(this.pressDown || this.pressLeft || this.pressRight || this.pressUp) this.spriteVelocity += 0.3;
+	let walk = Math.floor(this.spriteVelocity)  % 3;
+	ctx.drawImage(this.image,
+		      walk*width_img,direction*height_img,width_img,height_img,
+		      x,y,this.width,this.height)
 	/*
 ctx.fillStyle = this.color
 	ctx.fillRect(this.x-(this.width/2) ,this.y-(this.height/2),this.width,this.height);*/
@@ -61,11 +89,60 @@ ctx.fillStyle = this.color
 
 
 
-class Enemy extends Entity{
-    constructor(x,y,height,width,dx,dy,name){
-	super(x,y,height,width,dx,dy,name='E')
+class Enemy{
+    constructor(x,y,height,width,dx,dy,player){
 	this.image = new Image();
-	this.image.src = "../video_games/images/bird.jpeg"
+	this.image.src = "../video_games/images/bird_sprite-sheet.jpg";	
+	this.x = x ;
+	this.y = y ;
+	this.height = height;
+	this.width = width;
+	this.dx = dx;
+	this.dy = dy;
+	this.health = 10;
+	this.spriteVelocity = 0;
+    }
+    update(){
+	this.x+= this.dx;
+	this.y += this.dy;
+
+	//this.draw()
+	
+	if(this.x > canvas.width || this.x < 0){
+	    this.dx *= -1;
+	}
+	if(this.y > canvas.height || this.y < 0){
+	    this.dy *= -1; // change direction
+	}
+    }
+    
+    draw(){
+	/*let x = this.x-(this.width/2)
+	  let y = this.y-(this.height/2)*/
+
+	let x = this.x - player.x
+	let y = this.y - player.y
+
+	x += canvas.width/2;
+	y += canvas.height/2;
+
+	x -= this.width/2;
+	y -= this.height/2;
+
+	
+	let walk = this.spriteVelocity ++ % 5; 
+	let width_sprite = this.image.width/5;
+	ctx.drawImage(this.image,
+		      walk*width_sprite,0,width_sprite,this.image.height,
+		      x,y,this.width,this.height)
+
+    }
+
+    collisionRect(item){
+        return  (this.x < item.x + item.width) &&
+                (this.x + this.width > item.x) &&
+                (this.y < item.y + item.height) &&
+                (this.y + this.height > item.y);
     }
 
     
@@ -73,34 +150,80 @@ class Enemy extends Entity{
 }
 
 
-class Item extends Entity{
-    constructor(x,y,height,width,dx,dy,color,category){
-	super(x,y,height,width,dx,dy,color)
+class Item{
+    constructor(x,y,height,width,dx,dy,category){
+	this.x = x;
+	this.y = y;
+	this.height = height;
+	this.width = width;
+	this.dx = dx;
+	this.dy = dy;
 	this.category = category
 	this.image = new Image();
 	this.image.src = category === "attack" ? "../video_games/images/flower_02.png": "../video_games/images/flower_03.jpg"
     } 
-    
+
+            draw(){
+	/*let x = this.x-(this.width/2)
+	let y = this.y-(this.height/2)*/
+
+	let x = this.x - player.x
+	let y = this.y - player.y
+
+	x += canvas.width/2
+	y += canvas.height/2
+
+	x -= this.width/2
+	y -= this.height/2
+
+	   	
+	ctx.drawImage(this.image,
+		      0,0,this.image.width,this.image.height,
+		      x,y,this.width,this.height)
+
+    }
     
    
 }
 
 class Bullet{
-    constructor(x,y,height,width,speed_x,speed_y,color,timer){
+    constructor(x,y,height,width,speed_x,speed_y,timer){
 	this.x = x;
 	this.y = y;
 	this.height = height;
 	this.width = width;
 	this.dx = speed_x
 	this.dy = speed_y
-	this.color = color
 	this.timer = timer;
 	this.image = new Image();
 	this.image.src = '../video_games/images/bullet_ball_red.png';	
     }
     
     draw(){
-	ctx.drawImage(this.image,this.x,this.y,this.width,this.height)
+	let x = this.x - player.x
+	let y = this.y - player.y
+
+	    x += canvas.width/2;
+	    y += canvas.height/2;
+
+	    x -= this.width/2;
+	    y -= this.height/2;
+	ctx.drawImage(this.image,
+		      0,0,this.image.width,this.image.height,
+		      x,y,this.width,this.height)
+    }
+    update(){
+	this.x+= this.dx;
+	this.y += this.dy;
+
+	//this.draw()
+	
+	if(this.x > canvas.width || this.x < 0){
+	    this.dx *= -1;
+	}
+	if(this.y > canvas.height || this.y < 0){
+	    this.dy *= -1; // change direction
+	}
     }
 
     collisionRect(item){
@@ -126,6 +249,9 @@ class Background{
     draw(){
 	let x = canvas.width/2 - this.entity.x
 	let y = canvas.height/2 - this.entity.y
-	ctx.drawImage(this.image, this.x , this.y,this.image.width,this.image.height,x ,y, canvas.width,canvas.height)
+	ctx.drawImage(this.image,
+		      0, 0, this.image.width,this.image.height,
+		      x,y,this.image.width , this.image.height )
+		      
     }
 }

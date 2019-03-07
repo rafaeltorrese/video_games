@@ -1,4 +1,15 @@
-createEnemy = function(){
+createPlayer = function(){
+    let x = canvas.width/2;
+    let y = canvas.height/2;
+    let height = 60;
+    let width = 60;
+    let dx = 20;
+    let dy = 20;
+    return new Entity(x,y,height,width,dx,dy);
+}
+
+
+createEnemy = function(player){
     let epsilon = 5
     let x = Math.random()*canvas.width;
     let y = Math.random()*canvas.height;
@@ -6,7 +17,7 @@ createEnemy = function(){
     let width = 30
     let dx = epsilon + Math.random()*5;
     let dy = epsilon + Math.random()*5;
-    return new Enemy(x,y,height,width,dx,dy,'blue');
+    return new Enemy(x,y,height,width,dx,dy,player);
 }
 
 createItem = function(){
@@ -29,23 +40,31 @@ createItem = function(){
 }
 
 
-createBullet = function(player,overWriteAngle){
+createBullet = function(entity,overWriteAngle){
     // rad = 180 / PI
     // degrees = radians x 180 / PI
     let time = Date.now();
-    let x = player.x;
-    let y = player.y;
+    let x = entity.x;
+    let y = entity.y;
     let height = 15;
     let width = 15;
-    let color = 'black';
-    let degrees = player.aimAngle;
+    let degrees = entity.aimAngle;
+    if(entity.pressUp && entity.pressShift){
+	degrees = 270}
+    if(entity.pressDown && entity.pressShift){
+	degrees = 90}
+    if(entity.pressLeft && entity.pressShift){
+	degrees = 0}
+    if(entity.pressRight && entity.pressShift){
+	degrees = 360}
     if(overWriteAngle !== undefined){
 	degrees = overWriteAngle;
     }
+
     let speed_x = Math.cos(degrees/180*Math.PI)*5 ;
     let speed_y = Math.sin(degrees/180*Math.PI)*5;
     
-    return new Bullet(x, y, height, width,speed_x,speed_y,color,time)
+    return new Bullet(x, y, height, width,speed_x,speed_y,time)
 }
 
 
@@ -72,12 +91,7 @@ updateEntity = function(entity){
     }
 }
 
-collisionCircle = function(ent1,ent2,d){
-    var difx =  ent1.x -ent2.x ;
-    var dify = ent1.y - ent2.y ;
-    var distance = Math.hypot(difx,dify)
-    return distance <= d
-}
+
 
 
 

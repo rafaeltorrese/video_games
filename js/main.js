@@ -4,6 +4,15 @@
 
 
 
+
+
+
+//var player = new Entity(x=canvas.width/2,y=canvas.height/2)
+var player = createPlayer();
+var enemies = [createEnemy(player),createEnemy(player)]
+var bg = new Background(player)
+
+
 document.onmousemove = function(e){
     var mouseX = e.clientX - canvas.getBoundingClientRect().left;
     var mouseY = e.clientY - canvas.getBoundingClientRect().top;
@@ -35,11 +44,6 @@ document.onmousemove = function(e){
 */
     
 }
-
-
-var player = new Entity(x=canvas.width/2,y=canvas.height/2)
-var enemies = [createEnemy(),createEnemy()]
-var bg = new Background(player)
 
 
 list_Bullets = []
@@ -84,7 +88,7 @@ update = function(){
     player.draw()
 
     if(frameCount % 100 === 0){
-	enemies.push(createEnemy())
+	enemies.push(createEnemy(player))
     }
     
     if(frameCount % 50 === 0){
@@ -98,7 +102,8 @@ update = function(){
     
     
     for(let i= 0; i <list_Bullets.length ; i++){
-	updateEntity(list_Bullets[i]);
+	//updateEntity(list_Bullets[i]);
+	list_Bullets[i].update()
 	list_Bullets[i].draw()	
 	for(let j = 0; j <enemies.length ; j++){
 	    if(list_Bullets[i].collisionRect(enemies[j])){
@@ -121,7 +126,7 @@ update = function(){
 	updateEntity(list_Items[i]);
 	list_Items[i].draw();
 	
-	if(list_Items[i].collisionRect(player))	{
+	if(player.collisionRect(list_Items[i]))	{
 	    if(list_Items[i].category == 'health') player.health++;
 	    else player.attackSpeed++;
 	    list_Items.splice(i,1)
@@ -141,15 +146,15 @@ update = function(){
     }
 
      
-    ctx.fillStyle = 'black';
+    ctx.fillStyle = 'cyan';
     ctx.fillText(player.health + "Health" , 0 ,30);
     ctx.fillText(`Score: ${score}` , 200 ,30);
 
 
     if(player.health <= 0) {
-	var survived = Date.now() - timeGameStarted
+	//var survived = Date.now() - timeGameStarted
 	//ctx.clearRect(0,0,50,50)
-	ctx.fillText("Survived" + survived+" ms" , 0 ,60)
+	//ctx.fillText("Survived" + survived+" ms" , 0 ,60)
 	gameOver();
     }
     
@@ -167,7 +172,7 @@ start = function(){
 restart = function(){
     player.health = 10;
     frameCount = 0;
-    enemies = [createEnemy(),createEnemy(),createEnemy()]
+    enemies = [createEnemy(player),createEnemy(player),createEnemy(player)]
 }
 
 
@@ -186,6 +191,10 @@ document.onkeydown =  function(e){
     case 40:
 	player.pressDown = true;
 	break;
+    case 16:
+	player.pressShift = true;
+	
+	break;
     }
 }    
 
@@ -203,25 +212,46 @@ document.onkeyup =  function(e){
     case 40:
 	player.pressDown = false;
 	break;
+    case 16:
+	player.pressShift = false;
+	
+	break;
     }
 }   
 
 
 
 updatePlayerPosition = function(player){
-    if(player.pressLeft){
+
+    if(player.pressLeft ){
 	player.x -= 10
+    }
+    if(player.pressLeft && player.pressShift){
 	
+	list_Bullets.push(createBullet(player))
+    }
+    if(player.pressRight && player.pressShift){
+	list_Bullets.push(createBullet(player))
     }
     if(player.pressRight){
 	player.x += 10
     }
+    if(player.pressRight && player.pressShift){
+	list_Bullets.push(createBullet(player));
+    }
     if(player.pressUp){
 	player.y -= 10
+    }
+    if(player.pressUp && player.pressShift){
+	list_Bullets.push(createBullet(player))
     }
     if(player.pressDown){
 	player.y += 10
     }
+    if(player.pressDown && player.pressShift){
+	list_Bullets.push(createBullet(player));
+    }
+    
     
     if(player.x < player.width/2){
 	player.x = player.width/2
