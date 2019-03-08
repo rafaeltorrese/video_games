@@ -2,16 +2,19 @@
 
 
 
+var game_audio = new Audio();
+game_audio.src ="../video_games/audio/A_Virus_Named_TOM_130_Little_Viruses.mp3"
 
 
-
+var end_audio = new Audio();
+end_audio.src = "../video_games/audio/A_Virus_Named_TOM_Badvoca.mp3"
+end_audio.loop = false
 
 
 //var player = new Entity(x=canvas.width/2,y=canvas.height/2)
 var player = createPlayer();
 var enemies = [createEnemy(player),createEnemy(player)]
 var bg = new Background(player)
-
 
 document.onmousemove = function(e){
     var mouseX = e.clientX - canvas.getBoundingClientRect().left;
@@ -75,6 +78,7 @@ document.oncontextmenu = function(mouse){
 
 
 update = function(){
+    
     ctx.clearRect(0,0,canvas.width,canvas.height)
     bg.draw()
     frameCount++;
@@ -87,7 +91,7 @@ update = function(){
     updatePlayerPosition(player);
     player.draw()
 
-    if(frameCount % 100 === 0){
+    if(frameCount % 50 === 0){
 	enemies.push(createEnemy(player))
     }
     
@@ -146,7 +150,7 @@ update = function(){
     }
 
      
-    ctx.fillStyle = 'cyan';
+    ctx.fillStyle = 'red';
     ctx.fillText(player.health + "Health" , 0 ,30);
     ctx.fillText(`Score: ${score}` , 200 ,30);
 
@@ -162,11 +166,19 @@ update = function(){
 
 
 gameOver = function(){
+    
     clearInterval(interval)
+    game_audio.pause()
+    end_audio.play()
+    bg.gameOver()
+    
 }
 
 start = function(){
-    interval = setInterval(update,50);    
+    game_audio.play();
+    if(interval !== undefined) return;
+    interval = setInterval(update,50);
+    
 }
 
 restart = function(){

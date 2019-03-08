@@ -254,4 +254,12 @@ class Background{
 		      x,y,this.image.width , this.image.height )
 		      
     }
+    gameOver(){
+	ctx.font = "60px Roboto";
+	ctx.fillStyle = 'peru';
+	ctx.fillText("GAME OVER",canvas.width/2,canvas.height/2)
+	ctx.font = "40px Serif";
+	//ctx.fillStyle = 'blue';
+	ctx.fillText("Press 'Esc' to Reset",500,300)
+    }
 }

@@ -54,7 +54,7 @@ createBullet = function(entity,overWriteAngle){
     if(entity.pressDown && entity.pressShift){
 	degrees = 90}
     if(entity.pressLeft && entity.pressShift){
-	degrees = 0}
+	degrees = 180}
     if(entity.pressRight && entity.pressShift){
 	degrees = 360}
     if(overWriteAngle !== undefined){
