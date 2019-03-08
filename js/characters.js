@@ -160,7 +160,7 @@ class Item{
 	this.dy = dy;
 	this.category = category
 	this.image = new Image();
-	this.image.src = category === "attack" ? "../video_games/images/flower_02.png": "../video_games/images/flower_03.jpg"
+	this.image.src = category === "attack" ? "../video_games/images/flower_02.png": "../video_games/images/flower_sprite_sheet.png"
     } 
 
             draw(){
@@ -176,6 +176,7 @@ class Item{
 	x -= this.width/2
 	y -= this.height/2
 
+	
 	   	
 	ctx.drawImage(this.image,
 		      0,0,this.image.width,this.image.height,
