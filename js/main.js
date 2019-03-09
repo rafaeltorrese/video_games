@@ -1,29 +1,164 @@
+var interval = undefined;
+var timeGameStarted = Date.now()
+var frameCount = 0;
+var score = 0;
 
-
-
+// Audio 
+var audio_bullet = new Audio();
+audio_bullet.src = "../video_games/audio/blast_01.mp3"
 
 var game_audio = new Audio();
-game_audio.src ="../video_games/audio/A_Virus_Named_TOM_130_Little_Viruses.mp3"
-
+game_audio.src ="../video_games/audio/stage_01.mp3"
+game_audio.loop = true
 
 var end_audio = new Audio();
-end_audio.src = "../video_games/audio/A_Virus_Named_TOM_Badvoca.mp3"
-end_audio.loop = false
+end_audio.src = "../video_games/audio/gameOver.mp3"
 
+var victory_audio = new Audio();
+victory_audio.src = "../video_games/audio/victory.mp3"
+
+var damagePlayer_audio = new Audio();
+damagePlayer_audio.src = "../video_games/audio/blast_player.mp3"
+
+var item_audio = new Audio();
+item_audio.src = "../video_games/audio/item_01.mp3"
 
 //var player = new Entity(x=canvas.width/2,y=canvas.height/2)
 var player = createPlayer();
-var enemies = [createEnemy(player),createEnemy(player)]
 var bg = new Background(player)
+
+
+player.get_map(bg.image)
+
+var enemies = [createEnemy(player),createEnemy(player)]
+
+
+list_Bullets = []
+list_Items = []
+
+
+
+
+update = function(){    
+    ctx.clearRect(0,0,canvas.width,canvas.height)
+    bg.draw()
+    frameCount++;
+    //ctx.fillText(frameCount,player.map.width,0)
+    player.counterAttack += player.attackSpeed  
+    player.update()
+    //player.draw()
+    updatePlayerPosition(player)
+
+
+    if(frameCount % 40 === 0){
+	
+	enemies.push(createEnemy(player,bg.image))
+    }
+    
+    if(frameCount % 60 === 0){
+	list_Items.push(createItem(bg.image))
+    }
+
+         
+    for(let i= 0; i <list_Bullets.length ; i++){
+	list_Bullets[i].update()	
+	for(let j = 0; j <enemies.length ; j++){
+	    if(list_Bullets[i].collisionRect(enemies[j])){
+		list_Bullets.splice(i,1)
+		enemies.splice(j,1)
+		break;
+	    }
+	}
+	
+    }
+    
+    for(let i=0; i<list_Bullets.length ; i++){
+	if(list_Bullets[i].timer++  > 45){
+	    list_Bullets.splice(i,1)
+	}
+    }
+    
+    for(let i= 0; i <list_Items.length ; i++){
+	list_Items[i].draw()
+	if(player.collisionRect(list_Items[i]))	{
+	     
+	    if(list_Items[i].category == 'health')
+	    {
+		score++;
+		
+	    }
+	    else{
+		player.attackSpeed++;
+		
+	    }
+	    list_Items.splice(i,1)
+	    
+	}
+    }
+    
+    
+    for(let i= 0; i <enemies.length ; i++){
+	enemies[i].update();
+	//enemies[i].draw()
+	
+	if(enemies[i].collisionRect(player)){
+	    Math.floor(player.health-= 0.5);
+	    audioflag = true
+	    sound_blast(audioflag,damagePlayer_audio)
+	}	
+
+    }
+
+     
+    
+
+
+    if(player.health <= 0) {
+	gameOver();
+    }
+    if(score === 5){
+	winner()
+    }
+
+    ctx.fillStyle = 'red';
+    ctx.fillText(player.health + "Health" , canvas.width ,canvas.height);
+    ctx.fillText(`Score: ${score}` , canvas.width ,canvas.height);
+    
+}
+
+
+gameOver = function(){
+    
+    clearInterval(interval)
+    bg.gameOver()
+    game_audio.pause();
+    game_audio.currentTime = 0;
+    end_audio.play();
+}
+
+winner = function(){
+    
+    clearInterval(interval)
+    bg.winner()
+    game_audio.pause();
+    game_audio.currentTime = 0;
+    victory_audio.play();
+}
+
+
+
 
 document.onmousemove = function(e){
     var mouseX = e.clientX - canvas.getBoundingClientRect().left;
     var mouseY = e.clientY - canvas.getBoundingClientRect().top;
-    mouseX -= player.x
-    mouseY -= player.y
+
+    mouseX -= canvas.width / 2
+    mouseY -= canvas.height / 2
     player.aimAngle = Math.atan2(mouseY, mouseX) / Math.PI * 180;
-/*
-    var mouseX = e.clientX - canvas.getBoundingClientRect().left;
+
+    
+    /*
+var mouseX = e.clientX - canvas.getBoundingClientRect().left;
     var mouseY = e.clientY - canvas.getBoundingClientRect().top;
 
    
@@ -44,13 +179,11 @@ document.onmousemove = function(e){
     
     player.x = mouseX;
     player.y = mouseY;
-*/
+    */
+
+    
     
 }
-
-
-list_Bullets = []
-list_Items = []
 
 
 
@@ -68,124 +201,12 @@ document.oncontextmenu = function(mouse){
 	list_Bullets.push(createBullet(player,player.aimAngle + 5));
 	player.counterAttack = 0;
     }
-    mouse.preventDefault();
+    mouse.preventDefault();   
 }
 
 
 
 
-
-
-
-update = function(){
-    
-    ctx.clearRect(0,0,canvas.width,canvas.height)
-    bg.draw()
-    frameCount++;
-
-    player.counterAttack += player.attackSpeed  
-
-    
-
-    
-    updatePlayerPosition(player);
-    player.draw()
-
-    if(frameCount % 50 === 0){
-	enemies.push(createEnemy(player))
-    }
-    
-    if(frameCount % 50 === 0){
-	list_Items.push(createItem())
-    }
-
- 
-
-
-
-    
-    
-    for(let i= 0; i <list_Bullets.length ; i++){
-	//updateEntity(list_Bullets[i]);
-	list_Bullets[i].update()
-	list_Bullets[i].draw()	
-	for(let j = 0; j <enemies.length ; j++){
-	    if(list_Bullets[i].collisionRect(enemies[j])){
-		list_Bullets.splice(i,1)
-		enemies.splice(j,1)
-
-		score++;
-		break;
-	    }
-	}
-	
-    }	 
-    for(let i=0; i<list_Bullets.length ; i++){
-	if(Date.now() - list_Bullets[i].timer  === 1000){
-	    list_Bullets.splice(i,1)
-	}
-    }
-    
-    for(let i= 0; i <list_Items.length ; i++){
-	updateEntity(list_Items[i]);
-	list_Items[i].draw();
-	
-	if(player.collisionRect(list_Items[i]))	{
-	    if(list_Items[i].category == 'health') player.health++;
-	    else player.attackSpeed++;
-	    list_Items.splice(i,1)
-	}
-	
-    }
-    
-    
-    for(let i= 0; i <enemies.length ; i++){
-	updateEntity(enemies[i]);
-	enemies[i].draw()
-	//var isCollision = collisionCircle(enemies[i],player,10)
-	if(enemies[i].collisionRect(player)){
-	    player.health--;
-	}	
-
-    }
-
-     
-    ctx.fillStyle = 'red';
-    ctx.fillText(player.health + "Health" , 0 ,30);
-    ctx.fillText(`Score: ${score}` , 200 ,30);
-
-
-    if(player.health <= 0) {
-	//var survived = Date.now() - timeGameStarted
-	//ctx.clearRect(0,0,50,50)
-	//ctx.fillText("Survived" + survived+" ms" , 0 ,60)
-	gameOver();
-    }
-    
-}
-
-
-gameOver = function(){
-    
-    clearInterval(interval)
-    game_audio.pause()
-    end_audio.play()
-    bg.gameOver()
-    
-}
-
-start = function(){
-    game_audio.play();
-    if(interval !== undefined) return;
-    interval = setInterval(update,50);
-    
-}
-
-restart = function(){
-    player.health = 10;
-    frameCount = 0;
-    enemies = [createEnemy(player),createEnemy(player),createEnemy(player)]
-}
 
 
 
@@ -205,7 +226,6 @@ document.onkeydown =  function(e){
 	break;
     case 16:
 	player.pressShift = true;
-	
 	break;
     }
 }    
@@ -226,61 +246,74 @@ document.onkeyup =  function(e){
 	break;
     case 16:
 	player.pressShift = false;
-	
 	break;
     }
-}   
+}
+   
 
 
 
 updatePlayerPosition = function(player){
 
-    if(player.pressLeft ){
-	player.x -= 10
-    }
-    if(player.pressLeft && player.pressShift){
+    audioflag = true
+            if(player.pressLeft && player.pressShift  && player.counterAttack > 25){
+	list_Bullets.push(createBullet(player,180));
+	player.counterAttack = 0;
+		sound_blast(audioflag,audio_bullet)
 	
-	list_Bullets.push(createBullet(player))
-    }
-    if(player.pressRight && player.pressShift){
-	list_Bullets.push(createBullet(player))
-    }
-    if(player.pressRight){
-	player.x += 10
-    }
-    if(player.pressRight && player.pressShift){
-	list_Bullets.push(createBullet(player));
-    }
-    if(player.pressUp){
-	player.y -= 10
-    }
-    if(player.pressUp && player.pressShift){
-	list_Bullets.push(createBullet(player))
-    }
-    if(player.pressDown){
-	player.y += 10
-    }
-    if(player.pressDown && player.pressShift){
-	list_Bullets.push(createBullet(player));
+	    }
+    
+    if(player.pressRight && player.pressShift && player.counterAttack > 25){
+	list_Bullets.push(createBullet(player,360))
+	player.counterAttack = 0;
+	sound_blast(audioflag,audio_bullet)
     }
     
-    
-    if(player.x < player.width/2){
-	player.x = player.width/2
+    if( player.pressUp  && player.pressShift && player.counterAttack > 25){
+	list_Bullets.push(createBullet(player,272))
+	player.counterAttack = 0;
+	sound_blast(audioflag,audio_bullet)
     }
-    if(player.x > canvas.width - player.width/2){
-	player.x = canvas.width - player.width/2
+    if(player.pressDown && player.pressShift && player.counterAttack > 25){
+	list_Bullets.push(createBullet(player,95));
+	player.counterAttack = 0;
+	sound_blast(audioflag,audio_bullet)
     }
-    if(player.y < player.height/2){
-	player.y = player.height/2
-    }
-    if(player.y > canvas.height - player.height/2){
-	player.y = canvas.height - player.height/2
-    }
+       
 }
 
-updatePlayerPosition(player)
-start();
 
+
+start = function(){
+    if(interval != undefined) return
+    interval = setInterval(update,1000/20)
+    game_audio.play();
+    
+}
+
+
+
+
+pause = function(){
+    clearInterval(interval)
+    start()
+     
+}
+
+
+
+restart = function(){
+    
+    clearInterval(interval);
+    interval = undefined;
+    frameCount = 0;
+    score = 0;
+    list_Bullets = [];
+    list_Items = [];
+    enemies = []
+    start()
+    
+    
+}
 
 
